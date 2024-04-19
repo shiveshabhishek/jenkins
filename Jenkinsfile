@@ -26,17 +26,33 @@ spec:
         }
     }
     stages {
-        stage('Build') {
+        stage('Check Go version') {
             steps {
                 container('golang') {
                     sh 'go version'
                 }
             }
         }
-        stage('Test') {
+        stage('Clone') {
             steps {
                 container('golang') {
-                   echo "Testing stage"
+                   echo "Cloning stage"
+                   sh 'git clone https://github.com/shiveshabhishek/jenkins.git'
+                }
+            }
+        }
+        stage('Go code build') {
+            steps {
+                container('golang') {
+                   echo "Build stage"
+                   sh 'go build passwd.go'
+                }
+            }
+        }
+        stage('Run code') {
+            steps {
+                container('golang') {
+                    sh './passwd'
                 }
             }
         }
