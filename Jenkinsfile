@@ -1,51 +1,17 @@
 pipeline {
-    agent {
-        kubernetes {
-            label 'my-kubernetes-agent'
-            defaultContainer 'jnlp'
-            yaml """
-apiVersion: v1
-kind: Pod
-metadata:
-  labels:
-    some-label: some-label-value
-spec:
-  containers:
-  - name: golang
-    image: golang:1.17
-    command:
-    - cat
-    tty: true
-    volumeMounts:
-    - name: workspace-volume
-      mountPath: /workspace
-  volumes:
-  - name: workspace-volume
-    emptyDir: {}
-"""
-        }
+    // install golang 1.14 on Jenkins node
+    agent any
+    tools {
+        go 'go1.14'
+    }
+    environment {
+        GO114MODULE = 'on'
+        CGO_ENABLED = 0 
+        GOPATH = "${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"
     }
     stages {
-        stage('Build') {
-            steps {
-                container('golang') {
-                    sh 'go version'
-                }
-            }
-        }
-        stage('Test') {
-            steps {
-                container('golang') {
-                   echo "Testing stage"
-                }
-            }
-        }
-        stage('Deploy') {
-            steps {
-                container('golang') {
-                   echo "Deployment stage"
-                }
-            }
+        stage("unit-test") {
+            sh 'go version'
         }
     }
 }
